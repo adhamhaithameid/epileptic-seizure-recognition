@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
+import numpy as np
+
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
@@ -52,6 +54,12 @@ TRACKS: List[str] = [
     "binary",
     "multiclass",
 ]
+
+
+@dataclass(frozen=True)
+class ComboStatus:
+    status: str
+    skip_reason: str
 
 
 @dataclass(frozen=True)
@@ -106,3 +114,39 @@ def build_classifier(name: str):
     if name not in models:
         raise ValueError(f"Unknown classifier: {name}")
     return models[name]
+
+
+def clamp_feature_count(requested: int, max_allowed: int, minimum: int = 1) -> int:
+    if max_allowed < minimum:
+        return minimum
+    return max(minimum, min(requested, max_allowed))
+
+
+def non_negative_transform_for_chi2(
+    X_train: np.ndarray, X_test: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Chi-square requires non-negative values; shift data when needed."""
+    train_min = float(np.nanmin(X_train))
+    test_min = float(np.nanmin(X_test))
+    floor = min(train_min, test_min)
+    if floor >= 0:
+        return X_train, X_test
+
+    shift = abs(floor) + 1e-9
+    return X_train + shift, X_test + shift
+
+
+def skip_status(reason: str) -> ComboStatus:
+    return ComboStatus(status="failed", skip_reason=reason)
+
+
+def ok_status() -> ComboStatus:
+    return ComboStatus(status="ok", skip_reason="")
+
+
+def failure_reason(exc: Exception) -> str:
+    name = exc.__class__.__name__
+    text = str(exc).strip().replace("\n", " ")
+    if len(text) > 200:
+        text = text[:197] + "..."
+    return f"{name}: {text}"
