@@ -9,6 +9,7 @@ from .cartesian_pipeline import (
     build_preprocessor,
     model_registry,
 )
+from .benchmark import run_cartesian_benchmark
 from .runner import RunnerIO, ResumeState, append_checkpoint, load_resume_state, write_manifest
 
 __all__ = [
@@ -21,6 +22,7 @@ __all__ = [
     "build_classifier",
     "build_preprocessor",
     "model_registry",
+    "run_cartesian_benchmark",
     "RunnerIO",
     "ResumeState",
     "append_checkpoint",
