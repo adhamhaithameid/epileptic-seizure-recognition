@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -33,6 +34,8 @@ from src.config.paths import (  # noqa: E402
 )
 
 try:
+    # Force non-GUI backend for thread-safe/headless execution on Linux servers/laptops.
+    os.environ.setdefault("MPLBACKEND", "Agg")
     import matplotlib.pyplot as plt
     import seaborn as sns
 

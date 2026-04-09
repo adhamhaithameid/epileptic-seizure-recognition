@@ -21,6 +21,9 @@ def generate_cartesian_plots(
     cv_splits: int,
 ) -> List[Path]:
     try:
+        import matplotlib
+
+        matplotlib.use("Agg", force=True)
         import matplotlib.pyplot as plt
         import seaborn as sns
     except Exception:

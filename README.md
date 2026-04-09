@@ -140,6 +140,7 @@ export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
+export MPLBACKEND=Agg
 
 systemd-inhibit --what=sleep:idle --why="Soft computing full benchmark" \
 bash -lc "source .venv311/bin/activate && python src/cli/run_experiments.py --fresh --checkpoint-every 120 --jobs $CORES --selection-jobs $CORES"
