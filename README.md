@@ -29,13 +29,101 @@ This repository contains a refactored Soft Computing course project for **Epilep
 - `completed_ok, skipped_or_failed, runtime_sec`
 - `best_binary, best_multiclass`
 
-## Run locally
+## Run on Any Laptop (Exact Steps)
+
+### A) Arch Linux (RTX 3050 laptop)
 ```bash
-python3.11 -m venv .venv311
+# 1) System dependencies
+sudo pacman -Syu --needed git python python-pip base-devel
+
+# 2) Clone repository
+mkdir -p ~/projects
+cd ~/projects
+git clone https://github.com/adhamhaithameid/soft-computing-main-project.git
+cd soft-computing-main-project
+
+# 3) Create and activate virtual environment
+python -m venv .venv311
 source .venv311/bin/activate
+
+# 4) Install Python dependencies
+python -m pip install --upgrade pip setuptools wheel
 python -m pip install --disable-pip-version-check -r requirements.txt
-./run_all.sh
+
+# 5) Environment check
+python src/cli/check_env.py
+
+# 6) Fetch/refresh dataset
+python src/cli/fetch_data.py
+
+# 7) Smoke test (quick)
+python src/cli/run_experiments.py --fresh --max-rows 120 --checkpoint-every 30
+python src/cli/validate_cartesian_outputs.py --allow-partial
+
+# 8) Full run (real benchmark)
+systemd-inhibit --what=sleep:idle --why="Soft computing full benchmark" \
+bash -lc 'source .venv311/bin/activate && python src/cli/run_experiments.py --fresh --checkpoint-every 120'
+
+# 9) Strict validation + paper drafts
+python src/cli/validate_cartesian_outputs.py
+python src/cli/generate_paper_drafts.py
 ```
+
+### B) macOS (Apple Silicon / Intel)
+```bash
+# 1) Install basic tools (if needed)
+xcode-select --install
+
+# 2) Clone repository
+mkdir -p ~/projects
+cd ~/projects
+git clone https://github.com/adhamhaithameid/soft-computing-main-project.git
+cd soft-computing-main-project
+
+# 3) Create and activate virtual environment
+python3 -m venv .venv311
+source .venv311/bin/activate
+
+# 4) Install dependencies
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install --disable-pip-version-check -r requirements.txt
+
+# 5) Full run
+caffeinate -dimsu bash -lc 'source .venv311/bin/activate && python src/cli/run_experiments.py --fresh --checkpoint-every 120'
+
+# 6) Validate and generate drafts
+python src/cli/validate_cartesian_outputs.py
+python src/cli/generate_paper_drafts.py
+```
+
+### C) Windows (PowerShell)
+```powershell
+# 1) Clone repository
+git clone https://github.com/adhamhaithameid/soft-computing-main-project.git
+cd soft-computing-main-project
+
+# 2) Create and activate virtual environment
+python -m venv .venv311
+.venv311\Scripts\Activate.ps1
+
+# 3) Install dependencies
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install --disable-pip-version-check -r requirements.txt
+
+# 4) Fetch + run + validate + drafts
+python src/cli/fetch_data.py
+python src/cli/run_experiments.py --fresh --checkpoint-every 120
+python src/cli/validate_cartesian_outputs.py
+python src/cli/generate_paper_drafts.py
+```
+
+### Resume after interruption (all platforms)
+```bash
+source .venv311/bin/activate
+python src/cli/run_experiments.py --checkpoint-every 120
+```
+
+Do not use `--fresh` when resuming.
 
 ## Run from Colab
 1. Open the Colab link above.

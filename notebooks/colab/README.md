@@ -13,4 +13,8 @@ Run the full staged Cartesian benchmark in Google Colab with all requested metho
 ## Outputs
 The notebook writes outputs under `results/*` and `paper/draft/*`, then packages artifacts as `colab_outputs.zip`.
 
-See full steps in `docs/guides/colab_workflow.md`.
+## Local Laptop Runbook
+If you want to run the same benchmark on your own laptop (Arch Linux, macOS, or Windows), use the exact commands in:
+- root `README.md` -> section **Run on Any Laptop (Exact Steps)**
+
+See detailed Colab steps in `docs/guides/colab_workflow.md`.
