@@ -1,7 +1,7 @@
 # Colab Notebook
 
 - Main notebook: `epileptic_seizure_full_pipeline_colab.ipynb`
-- Direct Colab URL: https://colab.research.google.com/github/adhamhaithameid/epileptic-seizure-recognition-soft-computing/blob/main/notebooks/colab/epileptic_seizure_full_pipeline_colab.ipynb
+- Direct Colab URL: https://colab.research.google.com/github/adhamhaithameid/epileptic-seizure-recognition/blob/main/notebooks/colab/epileptic_seizure_full_pipeline_colab.ipynb
 
 ## Purpose
 Run the staged Cartesian benchmark with a step-by-step notebook that supports both Google Colab and local Jupyter execution:
