@@ -53,18 +53,27 @@ def _running_in_notebook() -> bool:
         from IPython import get_ipython
 
         ip = get_ipython()
-        return ip is not None and "IPKernelApp" in ip.config
+        return ip is not None
     except Exception:
         return False
 
 
-if not _running_in_notebook():
-    import matplotlib
+import matplotlib
 
+if _running_in_notebook():
+    try:
+        from IPython import get_ipython
+
+        get_ipython().run_line_magic("matplotlib", "inline")
+    except Exception:
+        # Inline activation is best-effort for notebook environments.
+        pass
+else:
     matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+plt.rcParams["figure.max_open_warning"] = 0
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.decomposition import PCA, KernelPCA, TruncatedSVD
@@ -237,6 +246,7 @@ def legates_mccabe_index(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 def _show_or_close(show_plots: bool):
     if show_plots:
         plt.show()
+        plt.close()
     else:
         plt.close()
 
@@ -292,7 +302,7 @@ def preprocessing_section(X: pd.DataFrame, y_binary: pd.Series, show_plots: bool
     print("\n[RUBRIC] Data Visualization: Class Distribution")
     class_counts = y_binary.value_counts().sort_index()
     plt.figure(figsize=(6, 4))
-    sns.barplot(x=["Non-Seizure (0)", "Seizure (1)"], y=class_counts.values, palette="Set2")
+    sns.barplot(x=["Non-Seizure (0)", "Seizure (1)"], y=class_counts.values, color="#2a9d8f")
     plt.title("Binary Class Distribution")
     plt.ylabel("Count")
     plt.tight_layout()
@@ -314,7 +324,7 @@ def preprocessing_section(X: pd.DataFrame, y_binary: pd.Series, show_plots: bool
     print(bin_counts)
 
     plt.figure(figsize=(6, 4))
-    sns.barplot(x=bin_counts.index.astype(str), y=bin_counts.values, palette="viridis")
+    sns.barplot(x=bin_counts.index.astype(str), y=bin_counts.values, color="#457b9d")
     plt.title(f"Binning Counts for {bin_feature}")
     plt.ylabel("Count")
     plt.tight_layout()
