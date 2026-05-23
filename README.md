@@ -1,153 +1,219 @@
-# Soft Computing Course Project
+# Epileptic Seizure Recognition
 
-End-to-end benchmark lab for **Epileptic Seizure Recognition** with:
-- full Cartesian benchmarking (1536 combinations, 4608 fold evaluations),
-- CPU or GPU execution modes,
-- automated checkpoints every 5% progress,
-- reproducible outputs (metrics, tables, figures, reports),
-- paper drafting assets mapped to the course template.
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![Jupyter Notebook](https://img.shields.io/badge/notebook-Phase%201%20%2B%20Phase%202-orange)](https://github.com/adhamhaithameid/epileptic-seizure-recognition)
+[![Colab](https://img.shields.io/badge/Colab-Open%20Notebook-yellow)](https://colab.research.google.com/drive/1ihmUtrUv8hyeJsxGvSS-gRnxTNXCd9KF)
+[![DOI](https://img.shields.io/badge/research-study-blueviolet)](https://docs.google.com/document/d/1hQM3NtDMTqfUUA7SnneqblxTEQdRf8pzPM7H7q_PGhA/edit)
+[![GitHub stars](https://img.shields.io/github/stars/adhamhaithameid/epileptic-seizure-recognition)](https://github.com/adhamhaithameid/epileptic-seizure-recognition)
+[![GitHub license](https://img.shields.io/github/license/adhamhaithameid/epileptic-seizure-recognition)](https://github.com/adhamhaithameid/epileptic-seizure-recognition/blob/main/LICENSE)
 
-## Scope Lock
-This repository is dedicated to **one use case only**: Epileptic Seizure Recognition.
-All scripts, outputs, and documentation are optimized for this dataset and task.
+A two-phase soft-computing study for **epileptic seizure recognition** from EEG signals using the UCI Epileptic Seizure Recognition dataset. Phase 1 benchmarks 10 classifiers across preprocessing, reduction, and feature-selection strategies. Phase 2 introduces a **Genetic Algorithm (GA)** for evolutionary feature selection.
 
-## 1) What This Project Delivers
-- Preprocessing comparison: `standard`, `minmax`, `robust`, `quantile`
-- Feature reduction: `none`, `pca`, `lda_projection`, `svd`
-- Feature selection:
-  - Filter: `filter_chi2`, `filter_anova`, `filter_correlation`
-  - Wrapper: `wrapper_sfs`, `wrapper_rfe`
-  - Embedded: `embedded_l1`
-  - Evolutionary: `ga_selection`
-- Classifiers: `knn`, `svm`, `decision_tree`, `logistic_regression`, `lda_classifier`, `mlp_ann`
-- Tracks: `binary` + `multiclass`
-- CV: `3` folds
+**Video presentation:** [Epileptic Seizure Recognition — GA Feature Selection](https://www.youtube.com/watch?v=p0bmKpUwvBY)
 
-Combination count:
-- Unique combinations: `4 x 4 x 8 x 6 x 2 = 1536`
-- Fold evaluations: `1536 x 3 = 4608`
+---
 
-## 2) Quick Start
-```bash
-python -m venv .venv311
-source .venv311/bin/activate   # Windows PowerShell: .venv311\Scripts\Activate.ps1
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install -r requirements.txt
+## Table of Contents
+
+- [About](#about)
+- [Dataset](#dataset)
+- [Phase 1 — Model Benchmarking](#phase-1--model-benchmarking)
+- [Phase 2 — GA Feature Selection](#phase-2--ga-feature-selection)
+- [Results](#results)
+- [Repository Structure](#repository-structure)
+- [Quick Start](#quick-start)
+- [Resources](#resources)
+- [License](#license)
+- [Citation](#citation)
+
+---
+
+## About
+
+**Course:** CSC425 — Math for Data Science (Soft Computing)
+
+This project evaluates machine-learning methods for detecting epileptic seizures from EEG-derived features. It is structured in two phases:
+
+| Phase | Focus | Key Methods |
+|-------|-------|-------------|
+| **1** | Full benchmarking pipeline | 10 classifiers, 5 reduction techniques, filter/wrapper/embedded selection |
+| **2** | Evolutionary feature selection | Genetic Algorithm vs. RFE / SelectKBest / Embedded RF |
+
+**Best result (Phase 1):** SVM (RBF) — **97.52% test accuracy**, **ROC AUC = 0.9972**
+
+---
+
+## Dataset
+
+- **Source:** [UCI Epileptic Seizure Recognition Dataset](https://archive.ics.uci.edu/dataset/213/epileptic+seizure+recognition)
+- **Samples:** 11,500
+- **Features:** 178 EEG-point attributes (`X1`–`X178`)
+- **Target:** Binary — seizure (class 1) vs. non-seizure (classes 2–5)
+- **Split:** 80/20 stratified train/test, 5-fold cross-validation
+
+---
+
+## Phase 1 — Model Benchmarking
+
+Phase 1 builds a complete end-to-end pipeline:
+
+1. **Loading & cleaning** — missing-value handling, numeric coercion
+2. **Statistical analysis** — Chi-square, t-test, ANOVA, descriptive stats
+3. **Feature reduction** — PCA, Kernel PCA, LDA, SVD
+4. **Feature selection** — SelectKBest, RFE, Embedded RF importance
+5. **Model training & evaluation** — 10 classifiers with 5-fold CV
+
+### Classifiers Evaluated
+
+| Model | Test Accuracy | F1 Score | ROC AUC |
+|-------|:------------:|:--------:|:-------:|
+| SVM (RBF) | **0.9752** | **0.9363** | **0.9972** |
+| Feed Forward Neural Network | 0.9683 | 0.9200 | 0.9901 |
+| Naive Bayesian | 0.9561 | 0.8906 | 0.9838 |
+| Feed Back Neural Network | 0.9504 | 0.8665 | 0.9751 |
+| Decision Tree (Entropy) | 0.9409 | 0.8400 | 0.9201 |
+| KNN (Euclidean) | 0.9313 | 0.7937 | 0.9207 |
+| KNN (Manhattan) | 0.9261 | 0.7739 | 0.9212 |
+| Bayesian Belief Network | 0.8448 | 0.6925 | 0.9309 |
+| Logistic Regression | 0.8165 | 0.1594 | 0.4992 |
+| LDA Classifier | 0.8122 | 0.1184 | 0.4936 |
+
+---
+
+## Phase 2 — GA Feature Selection
+
+Phase 2 implements a **binary Genetic Algorithm** that evolves optimal feature subsets.
+
+### GA Configuration
+
+| Parameter | Value |
+|-----------|-------|
+| Population | 30 |
+| Generations | 20 |
+| Crossover prob. | 0.80 |
+| Mutation prob. | 0.01 (per gene) |
+| Selection | Tournament (k=3) |
+| Elitism | 2 |
+| Min. features | 5 |
+| Fitness | 5-fold CV accuracy — λ · (selected / total) |
+
+### Comparison Baselines
+
+- RFE (Logistic Regression estimator)
+- SelectKBest (ANOVA)
+- Embedded RF importance
+- All-features baseline
+
+**Evaluation classifiers:** SVM (RBF), Decision Tree
+
+**Planned outputs:** evolution curves, accuracy/F1 bar charts, Jaccard overlap heatmap, ROC curves.
+
+> Note: Phase 2 code is complete and documented. Results need one full execution pass to persist output cells.
+
+---
+
+## Results Summary
+
+| Metric | Phase 1 Best (SVM RBF) |
+|--------|:---------------------:|
+| Test Accuracy | **97.52%** |
+| ROC AUC | **0.9972** |
+| F1 Score | 0.9363 |
+| Precision | 0.9443 |
+| Recall | 0.9284 |
+
+Non-linear models (SVM, neural networks) significantly outperform linear baselines, consistent with the complex, non-linear nature of EEG signals.
+
+---
+
+## Repository Structure
+
+```
+.
+├── Phase 1 Colab.ipynb           # Phase 1 notebook (full saved outputs)
+├── phase 2 colab.ipynb           # Phase 2 GA notebook (code complete)
+├── Full_Documentation.md         # Full project documentation
+├── Full_Documentation.docx       # Word version of documentation
+├── Research_Study.md             # Formal research study draft
+├── Research_Study.docx           # Word version of research study
+├── README.md                     # This file
+├── Soft-Computing-Research-Study.pptx  # Presentation deck
+├── CSC425-Math for Data Science-Project Phase 1-tasks Cover Sheet.docx
+├── CSC425-Math for Data Science-Project Phase 2-tasks Cover Sheet.docx
+├── Project Information Template.docx
+└── outputs/                      # Presentation build assets
+    └── 019e5090-a227-75c0-bd53-54cdbae187fa/
+        └── presentations/epileptic-seizure-study/
 ```
 
-Run interactive launcher:
+### Branches
+
+| Branch | Description |
+|--------|-------------|
+| `main` | Deliverables: notebooks, documentation, presentation |
+| `experimental/new-stuff-migration` | Full Phase 1 Python script + GA notebook + raw CSV |
+| `experimental/simpler-epileptic-version` | Cleaned, simplified Phase 1 pipeline |
+
+---
+
+## Quick Start
+
 ```bash
-python run_all.py
+# Clone the repo
+git clone https://github.com/adhamhaithameid/epileptic-seizure-recognition.git
+cd epileptic-seizure-recognition
+
+# Open the notebooks
+jupyter notebook "Phase 1 Colab.ipynb"
 ```
 
-You will choose:
-1. execution mode (`cpu` or `gpu`)
-2. platform profile (`linux`, `windows`, or `mac`)
+### Run in Google Colab
 
-## 3) Non-Interactive Examples
-Full CPU run:
+| Phase | Link |
+|-------|------|
+| Phase 1 | [Open in Colab](https://colab.research.google.com/drive/1ihmUtrUv8hyeJsxGvSS-gRnxTNXCd9KF) |
+| Phase 2 | [Open in Colab](https://colab.research.google.com/drive/1b0rBmBzEgozOo8VIo749H0kYiyZjX8ar) |
+
+### Dependencies
+
+- Python 3.11+
+- numpy, pandas, scikit-learn, matplotlib, seaborn, scipy
+
 ```bash
-python run_all.py --mode cpu --platform-profile linux --non-interactive --fresh
+pip install numpy pandas scikit-learn matplotlib seaborn scipy
 ```
 
-Full GPU run (fallback allowed):
-```bash
-python run_all.py --mode gpu --platform-profile linux --non-interactive --fresh
+---
+
+## Resources
+
+| Resource | Link |
+|----------|------|
+| Video presentation | [YouTube](https://www.youtube.com/watch?v=p0bmKpUwvBY) |
+| Phase 1 Colab notebook | [Colab](https://colab.research.google.com/drive/1ihmUtrUv8hyeJsxGvSS-gRnxTNXCd9KF) |
+| Phase 2 Colab notebook | [Colab](https://colab.research.google.com/drive/1b0rBmBzEgozOo8VIo749H0kYiyZjX8ar) |
+| Research study (Google Doc) | [Doc](https://docs.google.com/document/d/1hQM3NtDMTqfUUA7SnneqblxTEQdRf8pzPM7H7q_PGhA/edit) |
+| Full documentation (Google Doc) | [Doc](https://docs.google.com/document/d/1uv1zV8gsoTtub3P19x0MYCM4oLX3UCgt2Hi6ZSQGMzM/edit) |
+| GitHub repo | [GitHub](https://github.com/adhamhaithameid/epileptic-seizure-recognition) |
+
+---
+
+## License
+
+This project is for educational purposes as part of CSC425 — Math for Data Science at the University of Jeddah.
+
+---
+
+## Citation
+
+If you use this work, please cite:
+
+```bibtex
+@misc{epileptic-seizure-recognition,
+  author = {Adham Haitham Eid},
+  title = {Epileptic Seizure Recognition: A Two-Phase Soft Computing Study},
+  year = {2025},
+  publisher = {GitHub},
+  url = {https://github.com/adhamhaithameid/epileptic-seizure-recognition}
+}
 ```
-
-Strict GPU run (fails if GPU acceleration is unavailable):
-```bash
-python run_all.py --mode gpu --strict-device --platform-profile linux --non-interactive --fresh
-```
-
-Smoke test:
-```bash
-python run_all.py --mode cpu --platform-profile mac --non-interactive --fresh --max-rows 300 --allow-partial
-```
-
-## 4) Checkpoints and Progress
-The benchmark writes durable checkpoints and prints terminal progress at every **5%** by default.
-
-You can change this:
-```bash
-python run_all.py --checkpoint-percent 10 --non-interactive --mode cpu --platform-profile linux
-```
-
-## 5) Run History (Automatic)
-Each `run_all.py` execution creates:
-- a run archive folder: `results/history/runs/runN_<timestamp>/`
-- a global run index: `results/history/RUN_HISTORY.md`
-- a machine-readable history file: `results/history/run_history.json`
-
-Each run archive stores:
-- manifest snapshot,
-- validation report,
-- comparison report,
-- run summary with timing and configuration.
-
-## 6) Output Contracts
-Main metrics file:
-- `results/metrics/cartesian_metrics_all.csv`
-  - `track, fold, preprocessing, reduction, selection, model`
-  - `accuracy, precision, recall, f1, roc_auc, error_rate`
-  - `fit_time_sec, predict_time_sec, status, skip_reason`
-
-Manifest file:
-- `results/metrics/cartesian_run_manifest.json`
-  - `expected_combos, expected_fold_evals, target_total_rows`
-  - `rows_written, completed_ok, skipped_or_failed`
-  - `runtime_sec, started_utc, finished_utc`
-  - `checkpoint_percent, run_label, platform_profile`
-  - `execution_device, acceleration_backend`
-  - `best_binary, best_multiclass`
-
-Validation report:
-- `results/reports/cartesian_validation_report.md`
-
-## 7) Main Entrypoints
-- `run_all.py` (recommended launcher)
-- `src/cli/fetch_data.py`
-- `src/cli/check_env.py`
-- `src/cli/run_experiments.py`
-- `src/cli/validate_cartesian_outputs.py`
-- `src/cli/generate_paper_drafts.py`
-
-## 8) Colab Notebook
-- `notebooks/colab/epileptic_seizure_full_pipeline_colab.ipynb`
-- Notebook supports both environments:
-  - `RUN_ENV = "colab"` for Google Colab
-  - `RUN_ENV = "local"` for local Jupyter execution
-
-### Run Colab UI with local compute (recommended for long runs)
-This lets you monitor in the Colab browser page while computation runs on your laptop.
-
-1. Start local runtime from this repo:
-```bash
-./start_colab_local_runtime.sh
-```
-
-2. Copy the printed URL (for example `http://localhost:8888/?token=...`).
-3. Open the notebook online:
-   - https://colab.research.google.com/github/adhamhaithameid/epileptic-seizure-recognition/blob/main/notebooks/colab/epileptic_seizure_full_pipeline_colab.ipynb
-4. In Colab: `Connect` -> `Connect to local runtime` -> paste the URL.
-
-Stop runtime when done:
-```bash
-./stop_colab_local_runtime.sh
-```
-
-Notes:
-- The old repo path `soft-computing-main-project/.../03_notebooks/colab` returns `404` because this project now uses:
-  `epileptic-seizure-recognition/notebooks/colab/...`
-- Local runtime logs are written to `.colab_runtime.log`.
-
-## 9) Paper Assets
-- Template: `paper/template/`
-- Drafts: `paper/draft/`
-- Final mapped draft: `paper/draft/09_full_paper_draft_mapped_to_template.md`
-- Full draft copy: `RESEARCH_PAPER_FINAL_DRAFT.md`
-
-## 10) Additional Guides
-- `PROJECT_MASTER_GUIDE.md`
-- `FOLDER_STRUCTURE.md`
-- `ABOUT.md`
